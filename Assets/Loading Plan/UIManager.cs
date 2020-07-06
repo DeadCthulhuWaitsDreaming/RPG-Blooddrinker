@@ -20,6 +20,7 @@ public class UIManager : MonoBehaviour
 
     int[] rowsPerPallet;
     readonly int[] flavorCases = new int[] { 99, 99, 400, 36, 3, 0, 20, 0, 293, 0, 131, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    int[] backup = new int[33];
 
     readonly string[] toggles = new string[] { 
         "Croissants", "Mini Croissants (L)", "Mini Croissants (S)", "Multi Croissants", "Bagel Chips (S)", "Bagel Chips (L)", "Pizzeti (S)", "Pizzeti (L)", "Racks", "Shippers" 
@@ -207,9 +208,14 @@ public class UIManager : MonoBehaviour
                     break;
             }
 #endif
-            print($"{flavorCases[x]} of {flavors[x]}");
+            //print($"{flavorCases[x]} of {flavors[x]}");
         }
-        sort = true;
+        backup = flavorCases;
+        foreach(int item in backup)
+        {
+            print(item);
+        }
+        sort = true;   
     }
 
     void SetCustomerInfo(bool back)
@@ -231,6 +237,15 @@ public class UIManager : MonoBehaviour
     public int[] GetFlavorCases()
     {
         return flavorCases;
+    }
+
+    public int[] GetBackupCases()
+    {
+        foreach (int item in backup)
+        {
+            print(item);
+        }
+        return backup;
     }
 
     public string[] GetFlavors()
@@ -274,15 +289,7 @@ public class UIManager : MonoBehaviour
         customers.Add(customer);
         UpdateDropdown();
         newCustomerPanel.gameObject.SetActive(false);
-        string file;
-        if(AssetDatabase.IsValidFolder("c:\\users\\henry"))
-        {
-            file = "c:\\users\\henry\\desktop\\Customer File.txt";
-        }
-        else
-        {
-            file = "c:\\users\\nyarlathotep\\desktop\\Customer File.txt";
-        }
+        string file = "Assets/Loading Plan/Customer List.txt";
         using (StreamWriter stream = new StreamWriter(file,true))
         {
             stream.WriteLine(customer.company + "," + customer.street + "," + customer.city + "," + customer.state + "," + customer.zipcode + "," + customer.fullPallets);
@@ -303,15 +310,7 @@ public class UIManager : MonoBehaviour
     {
         List<Customer> customerList = new List<Customer>();
         string[] read;
-        string file;
-        if(AssetDatabase.IsValidFolder("C:\\users\\henry"))
-        {
-            file = "C:\\users\\henry\\desktop\\Customer File.txt";
-        }
-        else
-        {
-            file = "C:\\users\\nyarlathotep\\desktop\\Customer File.txt";
-        }
+        string file = "Assets/Loading Plan/Customer List.txt";
         read = File.ReadAllLines(file);
 
         for (int x = 0; x < read.Length; x++)

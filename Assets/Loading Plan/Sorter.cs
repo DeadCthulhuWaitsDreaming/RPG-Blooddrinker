@@ -38,7 +38,7 @@ public class Sorter : UIManager
         100 /  4,
         100 /  10, 100 /  10, 100 /  5, 100 /  5
     };
-    readonly float[] HEIGHT = new float[] { 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 11, 11, 11, 0, 0, 0, 9, 9, 9, 9, 10, 10, 10, 10, 9, 9, 9, 10, 10, 10, 2, 21, 22.5f, 24.5f, 24.5f };
+    readonly float[] HEIGHT = new float[] { 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 11, 11, 11, 7.25f, 7.25f, 7.25f, 9, 9, 9, 9, 10, 10, 10, 10, 9, 9, 9, 10, 10, 10, 2, 21, 22.5f, 24.5f, 24.5f };
     readonly int[] rows = new int[33], PERROW = new int[] { 9, 9, 9, 9, 9, 9, 10, 10, 9, 9, 9, 15, 15, 15, 16, 16, 16, 16, 11, 11, 11, 11, 16, 16, 16, 12, 12, 12, 4, 10, 10, 5, 5 };
     //readonly int[] cases = new int[8];
 
@@ -46,8 +46,9 @@ public class Sorter : UIManager
     List<Pallet> pallets = new List<Pallet>();
     List<int[]> mixedRows = new List<int[]>();
 
+    bool done = false;
+
     int tracker = 0, track = 1;
-    public int[] backup = new int[33];
 
     /*void Start()
     {
@@ -89,15 +90,7 @@ public class Sorter : UIManager
 
     private void OutputHTML()
     {
-        string file;
-        if(AssetDatabase.IsValidFolder("c:\\users\\henry"))
-        {
-            file = "c:\\users\\henry\\desktop\\Loading Plan.html";
-        }
-        else
-        {
-            file = "c:\\users\\nyarlathotep\\desktop\\Loading Plan.html";
-        }
+        string file = "Assets/Loading Plan/Loading Plan.html";
         using (StreamWriter filestream = new StreamWriter(file))
         {
             filestream.Write("<!DOCTYPE html><html><head><title>Loading Plan</title></head><body>");
@@ -116,14 +109,21 @@ public class Sorter : UIManager
                     }
                 }
                 filestream.WriteLine();
-                filestream.Write("</p>");
-                if(pallet.full != "Mixed")
+                //filestream.Write("</p>");
+                /*if(pallet.full != "Mixed")
                 {
                     print(pallet.full);
-                }
+                }*/
             }
+            for(int x = 0; x < GetBackupCases().Length; x++)
+            {
+                //if(GetBackupCases()[x] != 0) filestream.WriteLine(GetBackupCases()[x] + " of " +  GetFlavors()[x]);
+                print(GetBackupCases()[x]);
+            }
+            filestream.Write("</p>");
             filestream.Write("</body></html>");
         }
+        //CreateEmail.SendAnEmail("Assets/Loading Plan/Loading Plan.html", GetCustomerInfo().c_name);
         track = 6;
     }
 
