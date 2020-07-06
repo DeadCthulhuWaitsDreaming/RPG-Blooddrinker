@@ -4,15 +4,6 @@ ModelImporter:
   serializedVersion: 19300
   internalIDToNameTable:
   - first:
-      74: 1989289236423521904
-    second: Default Take
-  - first:
-      74: -3880581976594992817
-    second: ArmatureAction
-  - first:
-      74: -40633283016409675
-    second: Poses
-  - first:
       74: -623603649343465320
     second: Scene
   externalObjects: {}
