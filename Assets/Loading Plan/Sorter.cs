@@ -46,8 +46,6 @@ public class Sorter : UIManager
     List<Pallet> pallets = new List<Pallet>();
     List<int[]> mixedRows = new List<int[]>();
 
-    bool done = false;
-
     int tracker = 0, track = 1;
 
     /*void Start()
@@ -73,6 +71,7 @@ public class Sorter : UIManager
                     CreateFullPallets();
                     break;
                 case 2:
+                    ListFullPallets();
                     BuildMixedRows();
                     break;
                 case 3:
@@ -91,36 +90,47 @@ public class Sorter : UIManager
     private void OutputHTML()
     {
         string file = "Assets/Loading Plan/Loading Plan.html";
+        int num = 1;
         using (StreamWriter filestream = new StreamWriter(file))
         {
             filestream.Write("<!DOCTYPE html><html><head><title>Loading Plan</title></head><body>");
             filestream.Write("<h1>Customer: " + GetCustomerInfo().c_name + "<br>Ship Date: " + GetCustomerInfo().c_shipdate + "<br>FreightType: " + GetCustomerInfo().c_freight + "</h1>");
             filestream.Write("<h2>Total Pallet Count: " + pallets.Count + "</h2>");
 
+            for(int x = 0; x < ListFullPallets().Length; x++)
+            {
+                if(ListFullPallets()[x] > 0)
+                {
+
+                }
+            }
+
             foreach (Pallet pallet in pallets)
             {
-                filestream.Write("<p><b>Pallet " + pallet.num + ": </b><br><br>");
-                for (int j = 0; j < pallet.flavorQty.Length; j++)
+                if (pallet.full == "Mixed")
                 {
-                    if (pallet.flavorQty[j] > 0)
+                    filestream.Write("<p><b>Pallet " + pallet.num + ": </b><br><br>");
+                    for (int j = 0; j < pallet.flavorQty.Length; j++)
                     {
-                        if(pallet.flavorQty[j] == 1) filestream.Write(pallet.flavorQty[j] + " - case of " + GetFlavors()[j] + "<br>");
-                        else filestream.Write(pallet.flavorQty[j] + " - cases of " + GetFlavors()[j] + "<br>");
+                        if (pallet.flavorQty[j] > 0)
+                        {
+                            if (pallet.flavorQty[j] == 1) filestream.Write(pallet.flavorQty[j] + " - case of " + GetFlavors()[j] + "<br>");
+                            else filestream.Write(pallet.flavorQty[j] + " - cases of " + GetFlavors()[j] + "<br>");
+                        }
                     }
+                    filestream.Write("<br>");
+                    filestream.Write("</p>");
+                    /*if(pallet.full != "Mixed")
+                    {
+                        print(pallet.full);
+                    }*/
                 }
-                filestream.WriteLine();
-                //filestream.Write("</p>");
-                /*if(pallet.full != "Mixed")
-                {
-                    print(pallet.full);
-                }*/
             }
-            for(int x = 0; x < GetBackupCases().Length; x++)
+            /*for(int x = 0; x < GetBackupCases().Length; x++)
             {
-                //if(GetBackupCases()[x] != 0) filestream.WriteLine(GetBackupCases()[x] + " of " +  GetFlavors()[x]);
-                print(GetBackupCases()[x]);
+                if(GetBackupCases()[x] != 0) filestream.WriteLine(GetBackupCases()[x] + " cases of " +  GetFlavors()[x] + "<br>");
             }
-            filestream.Write("</p>");
+            filestream.Write("</p>");*/
             filestream.Write("</body></html>");
         }
         //CreateEmail.SendAnEmail("Assets/Loading Plan/Loading Plan.html", GetCustomerInfo().c_name);
@@ -144,6 +154,26 @@ public class Sorter : UIManager
             }
         }
         track = 2;
+    }
+
+    private int[] ListFullPallets()
+    {
+        int[] palletList = new int[33];
+        foreach (Pallet pallet in pallets)
+        {
+            if (pallet.complete && pallet.full != "Mixed")
+            {
+                for (int i = 0; i < pallet.flavorQty.Length; i++)
+                {
+                    if(pallet.flavorQty[i] > 0)
+                    {
+                        palletList[i] += 1;
+                        break;
+                    }
+                }
+            }
+        }
+        return palletList;
     }
 
     private void CreateMixedPallets()
@@ -197,40 +227,46 @@ public class Sorter : UIManager
 
     private void TryAddCase()
     {
-        Pallet pallet = GetIncompletePallet();
-        foreach (int[] row in mixedRows)
+        foreach(Pallet skid in pallets)
         {
-            float step = GetHeight(row) / GetMaxHeight();
-            if (pallet != null)
+            if(!skid.complete)
             {
-                if (CanAddRow(step, pallet))
+                Pallet pallet = skid;
+                foreach (int[] row in mixedRows)
                 {
-                    for (int i = 0; i < row.Length; i++)
+                    float step = GetHeight(row) / GetMaxHeight();
+                    if (pallet != null)
                     {
-                        pallet.flavorQty[i] += row[i];
-                        row[i] = 0;
+                        if (CanAddRow(step, pallet))
+                        {
+                            for (int i = 0; i < row.Length; i++)
+                            {
+                                pallet.flavorQty[i] += row[i];
+                                row[i] = 0;
+                            }
+                            pallet.fill += step;
+                            if (pallet.complete = IsPalletComplete(pallet))
+                            {
+                                pallet = GetIncompletePallet();
+                            }
+                        }
                     }
-                    pallet.fill += step;
-                    if (pallet.complete = IsPalletComplete(pallet))
+                    else
                     {
-                        pallet = GetIncompletePallet();
+                        pallet = new Pallet() { num = ++tracker };
+
+                        for (int i = 0; i < row.Length; i++)
+                        {
+                            pallet.flavorQty[i] += row[i];
+                            row[i] = 0;
+                        }
+                        pallet.fill += step;
+
+                        if (pallet.complete = IsPalletComplete(pallet) || pallet.fill > 0)
+                        {
+                            pallets.Add(pallet);
+                        }
                     }
-                }
-            }
-            else
-            {
-                pallet = new Pallet() { num = ++tracker };
-
-                for (int i = 0; i < row.Length; i++)
-                {
-                    pallet.flavorQty[i] += row[i];
-                    row[i] = 0;
-                }
-                pallet.fill += step;
-
-                if (pallet.complete = IsPalletComplete(pallet) || pallet.fill > 0)
-                {
-                    pallets.Add(pallet);
                 }
             }
         }

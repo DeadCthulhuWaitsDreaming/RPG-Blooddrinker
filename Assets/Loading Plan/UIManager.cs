@@ -1,10 +1,11 @@
-﻿//#define TESTING
+﻿#define TESTING
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.IO;
+using System.Diagnostics;
 
 public class UIManager : MonoBehaviour
 {
@@ -16,11 +17,14 @@ public class UIManager : MonoBehaviour
     readonly CustomerInfo ci = new CustomerInfo();
     List<Customer> customers = new List<Customer>();
     Dropdown cd;
-    List<Dropdown.OptionData> dataList = new List<Dropdown.OptionData>();
+    //List<Dropdown.OptionData> dataList = new List<Dropdown.OptionData>();
 
     int[] rowsPerPallet;
-    readonly int[] flavorCases = new int[] { 99, 99, 400, 36, 3, 0, 20, 0, 293, 0, 131, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    int[] backup = new int[33];
+#if TESTING
+    [SerializeField]
+#endif
+    int[] flavorCases = new int[] { 99, 99, 400, 36, 3, 0, 20, 0, 293, 0, 131, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    readonly int[] backup = new int[33];
 
     readonly string[] toggles = new string[] { 
         "Croissants", "Mini Croissants (L)", "Mini Croissants (S)", "Multi Croissants", "Bagel Chips (S)", "Bagel Chips (L)", "Pizzeti (S)", "Pizzeti (L)", "Racks", "Shippers" 
@@ -56,9 +60,28 @@ public class UIManager : MonoBehaviour
             }
         }
         customers = RetriveCustomerList();
-        UpdateDropdown();
+        //UpdateDropdown();
     }
 
+    public void PrintFiles()
+    {
+
+        string path = "C:\\Users\\Henry\\Documents\\GitHub Projects\\RPG-Blooddrinker\\Assets\\Loading Plan\\Loading Plan.txt";
+        /*ProcessStartInfo info = new ProcessStartInfo(path)
+        {
+            Verb = "print",
+            CreateNoWindow = false,
+            WindowStyle = ProcessWindowStyle.Hidden
+        };*/
+
+        Process p = new Process();
+        p.StartInfo.FileName = path;
+        p.StartInfo.ErrorDialog = true;
+        p.Start();
+        p.WaitForExit();
+        //process.Start();
+
+    }
 
     public void TogglePanel()
     {
@@ -210,10 +233,9 @@ public class UIManager : MonoBehaviour
 #endif
             //print($"{flavorCases[x]} of {flavors[x]}");
         }
-        backup = flavorCases;
-        foreach(int item in backup)
+        for(int x = 0; x < flavorCases.Length; x++)
         {
-            print(item);
+            backup[x] = flavorCases[x];
         }
         sort = true;   
     }
@@ -241,10 +263,6 @@ public class UIManager : MonoBehaviour
 
     public int[] GetBackupCases()
     {
-        foreach (int item in backup)
-        {
-            print(item);
-        }
         return backup;
     }
 
@@ -287,7 +305,7 @@ public class UIManager : MonoBehaviour
             fullPallets = panel.GetChild(5).GetComponent<Toggle>().isOn
         };
         customers.Add(customer);
-        UpdateDropdown();
+        //UpdateDropdown();
         newCustomerPanel.gameObject.SetActive(false);
         string file = "Assets/Loading Plan/Customer List.txt";
         using (StreamWriter stream = new StreamWriter(file,true))
@@ -341,7 +359,7 @@ public class UIManager : MonoBehaviour
         customerSelect.GetChild(0).GetChild(0);
     }
 
-    void UpdateDropdown()
+    /*void UpdateDropdown()
     {
         cd.ClearOptions();
         dataList = new List<Dropdown.OptionData>()
@@ -353,7 +371,7 @@ public class UIManager : MonoBehaviour
             dataList.Add(new Dropdown.OptionData(cust.company));
         }
         cd.AddOptions(dataList);
-    }
+    }*/
 
     public void OpenCustomerSelection()
     {
