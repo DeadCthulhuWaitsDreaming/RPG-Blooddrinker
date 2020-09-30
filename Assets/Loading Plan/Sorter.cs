@@ -31,6 +31,7 @@ public class Sorter : UIManager
         100 / 10, 100 / 10,
         100 /  9, 100 /  9, 100 /  9,
         100 / 15, 100 / 15, 100 / 15,
+        100 /  8, 100 /  8,
         100 / 16, 100 / 16, 100 / 16, 100 / 16,
         100 / 11, 100 / 11, 100 / 11, 100 / 11,
         100 / 16, 100 / 16, 100 / 16,
@@ -38,8 +39,8 @@ public class Sorter : UIManager
         100 /  4,
         100 /  10, 100 /  10, 100 /  5, 100 /  5
     };
-    readonly float[] HEIGHT = new float[] { 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 11, 11, 11, 7.25f, 7.25f, 7.25f, 9, 9, 9, 9, 10, 10, 10, 10, 9, 9, 9, 10, 10, 10, 2, 21, 22.5f, 24.5f, 24.5f };
-    readonly int[] rows = new int[33], PERROW = new int[] { 9, 9, 9, 9, 9, 9, 10, 10, 9, 9, 9, 15, 15, 15, 16, 16, 16, 16, 11, 11, 11, 11, 16, 16, 16, 12, 12, 12, 4, 10, 10, 5, 5 };
+    readonly float[] HEIGHT = new float[] { 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 7.5f, 11, 11, 11, 7.25f, 7.25f, 7.25f, 10.5f, 10.5f, 9, 9, 9, 9, 10, 10, 10, 10, 9, 9, 9, 10, 10, 10, 2, 21, 22.5f, 24.5f, 24.5f };
+    readonly int[] rows = new int[35], PERROW = new int[] { 9, 9, 9, 9, 9, 9, 10, 10, 9, 9, 9, 15, 15, 15, 8, 8, 16, 16, 16, 16, 11, 11, 11, 11, 16, 16, 16, 12, 12, 12, 4, 10, 10, 5, 5 };
     //readonly int[] cases = new int[8];
 
 
@@ -74,7 +75,7 @@ public class Sorter : UIManager
                     ListFullPallets();
                     BuildMixedRows();
                     break;
-                case 3:
+                /*case 3:
                     CreateMixedPallets();
                     break;
                 case 4:
@@ -82,7 +83,7 @@ public class Sorter : UIManager
                     break;
                 case 5:
                     OutputHTML();
-                    break;
+                    break;*/
             }
         }
     }
@@ -139,18 +140,18 @@ public class Sorter : UIManager
 
     private void CreateFullPallets()
     {
-        for (int i = 0; i < GetFlavorCases().Length; i++)
+        for (int i = 0; i < GetFlavorCases().Length; i++)   //Loop through all available products
         {
             int fullPallets;
-            rows[i] = GetFlavorCases()[i] / PERROW[i];
-            GetFlavorCases()[i] -= rows[i] * PERROW[i];
-            fullPallets = rows[i] / GetRowsPerPallet()[i];
-            rows[i] -= fullPallets * GetRowsPerPallet()[i];
-            for (int j = 0; j < fullPallets; j++)
+            rows[i] = GetFlavorCases()[i] / PERROW[i];  //Current Row = Qty of Current Flavor / Cases per Row
+            GetFlavorCases()[i] -= rows[i] * PERROW[i]; //Subtract Current Row x Cases per Row from Qty of Current Flavor
+            fullPallets = rows[i] / GetRowsPerPallet()[i];  //Current Row / Rows per Pallet for Current Flavor - Full Pallets
+            rows[i] -= fullPallets * GetRowsPerPallet()[i]; //Subtract Full Pallets for Current Flavor x Rows per Pallet for Current Flavor
+            for (int j = 0; j < fullPallets; j++)   //Loop through each Full Pallet for Current Flavor
             {
-                Pallet pallet = new Pallet() { num = ++tracker, complete = true, full = GetFlavors()[i] };
-                pallet.flavorQty[i] = GetRowsPerPallet()[i] * PERROW[i];
-                pallets.Add(pallet);
+                Pallet pallet = new Pallet() { num = ++tracker, complete = true, full = GetFlavors()[i] };  //Create new Pallet(num is pallet number, complete means nothing else will fit, full is the flavor)
+                pallet.flavorQty[i] = GetRowsPerPallet()[i] * PERROW[i];    //Set Pallets Current Flavor Qty to Current Rows per Pallet x Current Cases per Row
+                pallets.Add(pallet);    //Add Pallet to Pallet Array
             }
         }
         track = 2;
@@ -158,7 +159,7 @@ public class Sorter : UIManager
 
     private int[] ListFullPallets()
     {
-        int[] palletList = new int[33];
+        int[] palletList = new int[35];
         foreach (Pallet pallet in pallets)
         {
             if (pallet.complete && pallet.full != "Mixed")
